@@ -92,7 +92,7 @@ Why don't scientists trust Atoms?They make up everything."""
                                        wraplength=400)
         self.punchline_label.pack(pady=10)
         
-        # Button frame
+        # Frame for the button
         button_frame = tk.Frame(self.window, bg='#f0f8ff')
         button_frame.pack(pady=20)
         
@@ -143,7 +143,7 @@ Why don't scientists trust Atoms?They make up everything."""
         """Start the application"""
         self.window.mainloop()
 
-# Create and run the app
+# Run the app
 if __name__ == "__main__":
     app = JokeApp()
     app.run()

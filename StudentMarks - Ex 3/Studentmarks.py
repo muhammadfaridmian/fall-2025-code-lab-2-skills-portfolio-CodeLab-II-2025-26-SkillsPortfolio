@@ -3,21 +3,20 @@ from tkinter import ttk, messagebox
 import math # Needed for the pie chart calculations
 import os
 
-# =============================================================================
-# CONFIGURATION & VISUAL THEME
+
 # I'm using a "Slate & Emerald" theme. It feels professional and data-heavy.
-# =============================================================================
+# These are the colours for the app
 THEME = {
-    'bg_dark':      '#1E293B', # Deep slate sidebar
-    'bg_canvas':    '#F1F5F9', # Light grey-blue background
+    'bg_dark':      '#1E293B', 
+    'bg_canvas':    '#F1F5F9',
     'card_white':   '#FFFFFF',
-    'primary':      '#0EA5E9', # Sky blue
-    'accent':       '#6366f1', # Indigo
-    'success':      '#10B981', # Emerald green
-    'danger':       '#EF4444', # Red
-    'warning':      '#F59E0B', # Amber
-    'text_head':    '#0F172A', # Nearly black
-    'text_body':    '#64748B'  # Muted text
+    'primary':      '#0EA5E9', 
+    'accent':       '#6366f1', 
+    'success':      '#10B981', 
+    'danger':       '#EF4444', 
+    'warning':      '#F59E0B', 
+    'text_head':    '#0F172A', 
+    'text_body':    '#64748B' 
 }
 
 FONTS = {
@@ -28,9 +27,7 @@ FONTS = {
     'small': ("Segoe UI", 9)
 }
 
-# =============================================================================
-# LOGIC LAYER: DATA PROCESSING
-# =============================================================================
+# Main layer for the student data
 class StudentData:
     """
     Holds all the detailed math for a single student.
@@ -51,7 +48,7 @@ class StudentData:
             'exam': int(parts[5]) # out of 100
         }
         
-        # The heavy lifting / Math
+        # Math
         self.cw_total = sum([self.marks['cw1'], self.marks['cw2'], self.marks['cw3']])
         self.overall_score = self.cw_total + self.marks['exam']
         
@@ -69,15 +66,13 @@ class StudentData:
         if self.percentage >= 40: return 'D'
         return 'F'
 
-# =============================================================================
-# CUSTOM UI WIDGETS
-# Making things look pretty requires some custom classes
-# =============================================================================
+# UI Widgets
+
 class ModernButton(tk.Button):
     """A button that highlights when you hover over it."""
     def __init__(self, master, text, icon, command):
         self.default_bg = THEME['bg_dark']
-        self.hover_bg = '#334155' # slightly lighter slate
+        self.hover_bg = '#334155' 
         
         super().__init__(master, text=f"  {icon}  {text}", font=FONTS['h3'], 
                          bg=self.default_bg, fg="white", activebackground=self.hover_bg,
@@ -94,10 +89,10 @@ class ModernButton(tk.Button):
     def _on_leave(self, e):
         self.config(bg=self.default_bg)
 
-# =============================================================================
-# MAIN APPLICATION
-# =============================================================================
-class GradeBookPro(tk.Tk):
+
+# The Main application
+
+class EduAnalytics(tk.Tk):
     def __init__(self):
         super().__init__()
         
@@ -119,12 +114,12 @@ class GradeBookPro(tk.Tk):
         # 3. Launch Dashboard by default
         self.show_dashboard()
 
-    # --- Data Handling ---
+    # Data of the students
     def _check_files(self):
-        # If the file doesn't exist, I'll create it so the code works immediately.
+        # If the file doesn't exist, I created it so the code works immediately.
         if not os.path.exists("studentMarks.txt"):
             with open("studentMarks.txt", "w") as f:
-                f.write("10\n") # Header count
+                f.write("10\n") 
                 # Dummy data: ID, Name, CW1, CW2, CW3, Exam
                 data = """1001,Alice Carter,18,19,18,92
 1002,Bob Miller,12,14,11,65
@@ -142,19 +137,19 @@ class GradeBookPro(tk.Tk):
         try:
             with open("studentMarks.txt", "r") as f:
                 lines = f.readlines()
-                for line in lines[1:]: # Skip the count line
+                for line in lines[1:]: 
                     if line.strip():
                         self.students.append(StudentData(line))
         except Exception:
             messagebox.showerror("Data Error", "Critical error loading database file.")
 
-    # --- UI Structure ---
+    # The Structure of the UI
     def _setup_sidebar(self):
         self.sidebar = tk.Frame(self, bg=THEME['bg_dark'], width=280)
         self.sidebar.pack(side="left", fill="y")
         self.sidebar.pack_propagate(False)
         
-        # Brand / Logo
+        # Brand name
         title = tk.Label(self.sidebar, text="EDU\nANALYTICS", font=("Segoe UI", 30, "bold"), 
                          bg=THEME['bg_dark'], fg=THEME['primary'], justify="center")
         title.pack(pady=(40, 40))
@@ -162,7 +157,7 @@ class GradeBookPro(tk.Tk):
         # Menu Items
         ModernButton(self.sidebar, "Executive Dashboard", "📊", self.show_dashboard).pack(fill="x", pady=2)
         ModernButton(self.sidebar, "Student Registry", "👥", self.show_registry).pack(fill="x", pady=2)
-        ModernButton(self.sidebar, "Assessment Breakdown", "📈", self.show_breakdown).pack(fill="x", pady=2)
+        ModernButton(self.sidebar, "Performance Analysis", "📈", self.show_breakdown).pack(fill="x", pady=2)
         ModernButton(self.sidebar, "At-Risk Monitor", "⚠️", self.show_risk_monitor).pack(fill="x", pady=2)
         
         # Version info footer
@@ -173,7 +168,7 @@ class GradeBookPro(tk.Tk):
         self.main_frame = tk.Frame(self, bg=THEME['bg_canvas'])
         self.main_frame.pack(side="right", fill="both", expand=True)
         
-        # We need scrolling for detailed lists
+        # I created the scrolling for detailed lists
         self.canvas = tk.Canvas(self.main_frame, bg=THEME['bg_canvas'], highlightthickness=0)
         self.scrollbar = ttk.Scrollbar(self.main_frame, orient="vertical", command=self.canvas.yview)
         self.scroll_inner = tk.Frame(self.canvas, bg=THEME['bg_canvas'])
@@ -189,9 +184,7 @@ class GradeBookPro(tk.Tk):
         for widget in self.scroll_inner.winfo_children():
             widget.destroy()
 
-    # =========================================================================
-    # CATEGORY 1: EXECUTIVE DASHBOARD (Visuals)
-    # =========================================================================
+    # Category 1 = Executive Dashboard
     def show_dashboard(self):
         self._clear_view()
         tk.Label(self.scroll_inner, text="Executive Overview", font=FONTS['h1'], bg=THEME['bg_canvas'], fg=THEME['text_head']).pack(anchor="w")
@@ -290,9 +283,8 @@ class GradeBookPro(tk.Tk):
         # Legend
         tk.Label(frame, text=f"Passing: {pass_c}   |   Failing: {fail_c}", bg="white", fg="#666").pack()
 
-    # =========================================================================
-    # CATEGORY 2: STUDENT REGISTRY (Detailed List)
-    # =========================================================================
+    # Category 2 = Student Registry
+    
     def show_registry(self):
         self._clear_view()
         
@@ -301,7 +293,7 @@ class GradeBookPro(tk.Tk):
         head.pack(fill="x", pady=(0,20))
         tk.Label(head, text="Student Registry", font=FONTS['h1'], bg=THEME['bg_canvas'], fg=THEME['text_head']).pack(side="left")
         
-        # Search bar (Simple simulation)
+        # Search bar 
         entry = tk.Entry(head, font=FONTS['body'])
         entry.pack(side="right", padx=10)
         tk.Label(head, text="Search:", bg=THEME['bg_canvas']).pack(side="right")
@@ -380,9 +372,7 @@ class GradeBookPro(tk.Tk):
             tk.Label(top, text="RESULT: PASS", fg=THEME['success'], font=FONTS['h3'], bg="white").pack()
 
 
-    # =========================================================================
-    # CATEGORY 3: ASSESSMENT BREAKDOWN (Coursework Analysis)
-    # =========================================================================
+    # Category 3 = Assessment Breakdown
     def show_breakdown(self):
         self._clear_view()
         tk.Label(self.scroll_inner, text="Coursework vs Exam Analysis", font=FONTS['h1'], bg=THEME['bg_canvas'], fg=THEME['text_head']).pack(anchor="w", pady=(0,20))
@@ -391,7 +381,7 @@ class GradeBookPro(tk.Tk):
         tk.Label(self.scroll_inner, text="Compare how students perform in continuous assessment (CW) versus high-pressure exams.", 
                  font=FONTS['body'], bg=THEME['bg_canvas'], fg=THEME['text_body']).pack(anchor="w", pady=(0,20))
 
-        # We'll just list them with dual progress bars
+        # I just listed them with dual progress bars
         for s in self.students:
             frame = tk.Frame(self.scroll_inner, bg="white", padx=15, pady=10)
             frame.pack(fill="x", pady=5)
@@ -429,9 +419,7 @@ class GradeBookPro(tk.Tk):
         tk.Label(row, text=f"{int(pct*100)}%", font=FONTS['small'], bg="white").pack(side="right")
 
 
-    # =========================================================================
-    # CATEGORY 4: AT-RISK MONITOR (New Feature)
-    # =========================================================================
+    # Category 4 - At-Risk Monitor
     def show_risk_monitor(self):
         self._clear_view()
         
@@ -467,5 +455,5 @@ class GradeBookPro(tk.Tk):
 
 if __name__ == "__main__":
     # Run the application
-    app = GradeBookPro()
+    app = EduAnalytics()
     app.mainloop()

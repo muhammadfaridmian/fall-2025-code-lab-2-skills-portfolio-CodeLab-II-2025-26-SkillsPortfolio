@@ -30,7 +30,7 @@ class ArithmeticQuiz:
                                  font=("Arial", 14), bg='#f0f8ff', fg='#34495e')
         subtitle_label.pack(pady=10)
         
-        # Difficulty buttons with better styling
+        # Difficulty buttons 
         button_style = {
             'font': ("Arial", 12, "bold"),
             'width': 15,
@@ -89,7 +89,7 @@ class ArithmeticQuiz:
         self.num2 = self.random_int()
         self.operation = self.decide_operation()
         
-        # Make sure subtraction doesn't give negative result
+        # This makes sure subtraction doesn't give negative result
         if self.operation == '-' and self.num1 < self.num2:
             self.num1, self.num2 = self.num2, self.num1
         
@@ -105,7 +105,7 @@ class ArithmeticQuiz:
                               font=("Arial", 12, "bold"), bg='#f0f8ff', fg='#27ae60')
         score_label.pack()
         
-        # Question display
+        # This displays the question
         question_frame = tk.Frame(self.window, bg='#f0f8ff')
         question_frame.pack(pady=30)
         
@@ -114,7 +114,7 @@ class ArithmeticQuiz:
                                  font=("Arial", 28, "bold"), bg='#f0f8ff', fg='#2c3e50')
         question_label.pack()
         
-        # Answer entry with better styling
+        # This is where you can type the answer
         entry_frame = tk.Frame(self.window, bg='#f0f8ff')
         entry_frame.pack(pady=20)
         
@@ -124,7 +124,7 @@ class ArithmeticQuiz:
         self.answer_entry.focus()
         self.answer_entry.bind('<Return>', lambda event: self.check_answer())
         
-        # Submit button with better styling
+        # Submit button
         submit_btn = tk.Button(self.window, text="Submit Answer", 
                               command=self.check_answer,
                               font=("Arial", 12, "bold"),
@@ -139,7 +139,7 @@ class ArithmeticQuiz:
         except:
             user_answer = None
         
-        # Calculate correct answer
+        # This calculates correct answer
         if self.operation == '+':
             correct_answer = self.num1 + self.num2
         else:
@@ -192,7 +192,7 @@ class ArithmeticQuiz:
             grade = "D 📚"
             color = "#e74c3c"
         
-        # Results display
+        # This displays the result
         results_frame = tk.Frame(self.window, bg='#f0f8ff')
         results_frame.pack(expand=True)
         
