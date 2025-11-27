@@ -1,7 +1,3 @@
-# In this exercise ive made some significant changes to the code so that i dont exceed a lot of lines
-# I have used a little AI in a few areas when adding more categories and organizing them
-
-
 import tkinter as tk
 from tkinter import ttk, messagebox
 import os
@@ -34,8 +30,8 @@ class StudentData:
 class ModernButton(tk.Button):
     def __init__(self, master, text, command, **kwargs):
         super().__init__(master, text=text, font=("Arial", 11), bg=THEME['bg_dark'], 
-                        fg="white", bd=0, anchor="w", padx=20, pady=12, 
-                        cursor="hand2", command=command, **kwargs)
+                         fg="white", bd=0, anchor="w", padx=20, pady=12, 
+                         cursor="hand2", command=command, **kwargs)
         self.bind("<Enter>", lambda e: self.config(bg='#334155'))
         self.bind("<Leave>", lambda e: self.config(bg=THEME['bg_dark']))
 
@@ -53,23 +49,30 @@ class EduAnalytics(tk.Tk):
         self.show_dashboard()
 
     def _setup_data(self):
+        sample_data = """10
+1345,John Curry,8,15,7,45
+2345,Sam Sturtivant,14,15,14,77
+9876,Lee Scott,17,11,16,99
+3724,Matt Thompson,19,11,15,81
+1212,Ron Herrema,14,17,18,66
+8439,Jake Hobbs,10,11,10,43
+2344,Jo Hyde,6,15,10,55
+9384,Gareth Southgate,1,1,1,2
+8327,Alan Shearer,20,20,20,100
+2983,Les Ferdinand,15,17,18,92"""
+        
         if not os.path.exists("studentMarks.txt"):
-            sample_data = """10
-1001,Alice Carter,18,19,18,92
-1002,Bob Miller,12,14,11,65
-1003,Charlie Davis,5,8,6,40
-1004,Diana Prince,20,20,19,98
-1005,Evan Wright,8,9,8,35
-1006,Fiona Gallagher,15,16,15,78
-1007,George King,11,10,12,55
-1008,Hannah Montana,19,18,20,90
-1009,Ian Malcolm,14,14,14,72
-1010,Jack Sparrow,2,4,3,15"""
             with open("studentMarks.txt", "w") as f:
                 f.write(sample_data)
         
         with open("studentMarks.txt", "r") as f:
-            self.students = [StudentData(line) for line in f.readlines()[1:] if line.strip()]
+            lines = f.readlines()
+            if len(lines) > 1:
+                self.students = [StudentData(line) for line in lines[1:] if line.strip()]
+            else:
+                with open("studentMarks.txt", "w") as f:
+                    f.write(sample_data)
+                self.students = [StudentData(line) for line in sample_data.split('\n')[1:] if line.strip()]
 
     def _save_data(self):
         try:
@@ -159,8 +162,12 @@ class EduAnalytics(tk.Tk):
         stats_frame = tk.Frame(self.scroll_frame, bg=THEME['bg_canvas'])
         stats_frame.pack(fill="x", pady=30)
         
-        avg_score = sum(s.percentage for s in self.students) / len(self.students)
-        pass_count = sum(1 for s in self.students if not s.is_failing)
+        if self.students:
+            avg_score = sum(s.percentage for s in self.students) / len(self.students)
+            pass_count = sum(1 for s in self.students if not s.is_failing)
+        else:
+            avg_score = 0
+            pass_count = 0
         
         self.create_card(stats_frame, "Class Average", f"{avg_score:.1f}%", THEME['primary'])
         self.create_card(stats_frame, "Total Students", str(len(self.students)), THEME['warning'])
@@ -251,8 +258,67 @@ class EduAnalytics(tk.Tk):
             perf_frame.pack(side="right")
             tk.Label(perf_frame, text=f"{student.percentage:.1f}%", 
                     font=("Arial", 14, "bold"), bg="white").pack()
+            
+            # Button linked to the report method
             tk.Button(perf_frame, text="View Report", font=("Arial", 9),
-                     bg=THEME['primary'], fg="white", cursor="hand2").pack()
+                      bg=THEME['primary'], fg="white", cursor="hand2",
+                      command=lambda s=student: self.show_student_report(s)).pack()
+
+    def show_student_report(self, student):
+        """Create a popup window showing specific student details"""
+        report = tk.Toplevel(self)
+        report.title(f"Report: {student.name}")
+        # FIX: Increased height from 500 to 600 to ensure the percentage is visible
+        report.geometry("400x600") 
+        report.configure(bg='white')
+
+        # Report Header
+        tk.Label(report, text=student.name, font=("Arial", 18, "bold"), 
+                 bg='white', fg=THEME['text_head']).pack(pady=(20, 5))
+        tk.Label(report, text=f"ID: {student.id}", font=("Arial", 11), 
+                 bg='white', fg=THEME['text_body']).pack(pady=(0, 20))
+
+        # Content Container
+        content = tk.Frame(report, bg='white', padx=40)
+        content.pack(fill='both', expand=True)
+
+        # Helper function for rows
+        def add_row(label, value, is_bold=False):
+            font = ("Arial", 11, "bold") if is_bold else ("Arial", 11)
+            frame = tk.Frame(content, bg='white', pady=5)
+            frame.pack(fill='x')
+            tk.Label(frame, text=label, font=font, bg='white', fg=THEME['text_head']).pack(side='left')
+            tk.Label(frame, text=value, font=font, bg='white', 
+                     fg=THEME['primary'] if is_bold else THEME['text_body']).pack(side='right')
+            tk.Frame(content, bg=THEME['bg_canvas'], height=1).pack(fill='x', pady=2)
+
+        # Coursework Section
+        tk.Label(content, text="COURSEWORK", font=("Arial", 10, "bold"), 
+                 fg=THEME['text_body'], bg='white').pack(anchor='w', pady=(10, 10))
+        add_row("Assignment 1", str(student.marks['cw1']))
+        add_row("Assignment 2", str(student.marks['cw2']))
+        add_row("Assignment 3", str(student.marks['cw3']))
+        add_row("CW Total", f"{student.cw_total}/60", True)
+
+        # Exam Section
+        tk.Label(content, text="EXAMINATION", font=("Arial", 10, "bold"), 
+                 fg=THEME['text_body'], bg='white').pack(anchor='w', pady=(20, 10))
+        add_row("Final Exam", f"{student.marks['exam']}/100", True)
+
+        # Final Result Section
+        tk.Label(content, text="FINAL RESULT", font=("Arial", 10, "bold"), 
+                 fg=THEME['text_body'], bg='white').pack(anchor='w', pady=(20, 10))
+        
+        res_frame = tk.Frame(content, bg=THEME['bg_canvas'], padx=20, pady=15)
+        res_frame.pack(fill='x', pady=10)
+        
+        grade_color = THEME['success'] if student.grade in ['A','B'] else THEME['warning'] if student.grade == 'C' else THEME['danger']
+        
+        # Display the percentage prominently
+        tk.Label(res_frame, text=f"{student.percentage:.1f}%", font=("Arial", 24, "bold"), 
+                 bg=THEME['bg_canvas'], fg=THEME['text_head']).pack(expand=True)
+        tk.Label(res_frame, text=f"Grade {student.grade}", font=("Arial", 14, "bold"), 
+                 bg=THEME['bg_canvas'], fg=grade_color).pack(expand=True)
 
     def show_analysis(self):
         self.clear_main()
@@ -453,7 +519,7 @@ class EduAnalytics(tk.Tk):
             
             # Exam mark
             exam_label = tk.Label(row_frame, text=str(student.marks['exam']), font=("Arial", 11), 
-                                bg=row_color, width=columns[3]["width"]//8, anchor="center")
+                                 bg=row_color, width=columns[3]["width"]//8, anchor="center")
             exam_label.grid(row=0, column=3, padx=2, pady=10)
             
             # Percentage with color coding

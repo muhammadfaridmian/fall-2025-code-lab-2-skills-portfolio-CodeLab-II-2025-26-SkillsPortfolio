@@ -6,6 +6,6 @@
 1212,Ron Herrema,14,17,18,66
 8439,Jake Hobbs,10,11,10,43
 2344,Jo Hyde,6,15,10,55
-9384,Gareth Southgate,8,9,16,78
+9384,Gareth Southgate,1,1,1,2
 8327,Alan Shearer,20,20,20,100
 2983,Les Ferdinand,15,17,18,92
