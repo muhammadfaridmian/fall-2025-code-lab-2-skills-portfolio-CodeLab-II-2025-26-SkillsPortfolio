@@ -5,21 +5,38 @@ class JokeApp:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Joke Teller")
-        self.window.geometry("500x300")
+        self.window.geometry("500x550") # Increased height for instructions/icons
         self.window.configure(bg='#f0f8ff')
         
+        # --- NEW: Custom Window Icon (Pixel Art) ---
+        # Draws a simple Smiley Face icon programmatically
+        self.icon_img = tk.PhotoImage(width=32, height=32)
+        self.icon_img.put("#f1c40f", to=(2, 2, 30, 30))   # Yellow Face
+        self.icon_img.put("#2c3e50", to=(8, 10, 12, 14))  # Left Eye
+        self.icon_img.put("#2c3e50", to=(20, 10, 24, 14)) # Right Eye
+        self.icon_img.put("#2c3e50", to=(8, 20, 24, 23))  # Mouth
+        self.icon_img.put("#2c3e50", to=(8, 19, 10, 21))  # Smile Corner L
+        self.icon_img.put("#2c3e50", to=(22, 19, 24, 21)) # Smile Corner R
+        self.window.iconphoto(True, self.icon_img)
+        # -------------------------------------------
+
         # Load jokes from file
         self.jokes = []
         self.load_jokes()
         
         self.current_joke = None
+        
+        # Initialize widget references
         self.setup_label = None
         self.punchline_label = None
+        self.punchline_btn = None
+        self.next_btn = None
         
-        self.create_widgets()
+        # Start with the main interface
+        self.display_home()
     
     def load_jokes(self):
-        """Load jokes from the text file"""
+        """Load jokes from the text data"""
         jokes_data = """Why did the chicken cross the road?To get to the other side.
 What happens if you boil a clown?You get a laughing stock.
 Why did the car get a flat tire?Because there was a fork in the road!
@@ -58,19 +75,30 @@ What do you call a dog that's been run over by a steamroller?Spot!
 What's the difference between a hippo and a zippo?One's pretty heavy and the other's a little lighter
 Why don't scientists trust Atoms?They make up everything."""
         
-        # Split into lines and process each joke
         lines = jokes_data.strip().split('\n')
         for line in lines:
             if '?' in line:
                 setup, punchline = line.split('?', 1)
                 self.jokes.append((setup + '?', punchline))
     
-    def create_widgets(self):
-        """Create all the GUI widgets"""
+    def clear_window(self):
+        """Remove all widgets to switch screens"""
+        for widget in self.window.winfo_children():
+            widget.destroy()
+
+    def display_home(self):
+        """Create the Main GUI widgets"""
+        self.clear_window()
+
+        # Creative Icon
+        icon_label = tk.Label(self.window, text="😂", font=("Arial", 60), 
+                             bg='#f0f8ff', fg='#e67e22')
+        icon_label.pack(pady=(10, 0))
+
         # Title
         title_label = tk.Label(self.window, text="Joke Teller Assistant", 
                               font=("Arial", 18, "bold"), bg='#f0f8ff', fg='#2c3e50')
-        title_label.pack(pady=20)
+        title_label.pack(pady=10)
         
         # Tell me a joke button
         self.joke_btn = tk.Button(self.window, text="Alexa tell me a Joke", 
@@ -81,44 +109,85 @@ Why don't scientists trust Atoms?They make up everything."""
         self.joke_btn.pack(pady=10)
         
         # Setup label (for joke question)
-        self.setup_label = tk.Label(self.window, text="", 
+        self.setup_label = tk.Label(self.window, text="Press the blue button to start!", 
                                    font=("Arial", 12), bg='#f0f8ff', fg='#2c3e50',
                                    wraplength=400)
         self.setup_label.pack(pady=10)
         
         # Punchline label (for joke answer)
         self.punchline_label = tk.Label(self.window, text="", 
-                                       font=("Arial", 12, "bold"), bg='#f0f8ff', fg='#e74c3c',
-                                       wraplength=400)
+                                      font=("Arial", 12, "bold"), bg='#f0f8ff', fg='#e74c3c',
+                                      wraplength=400)
         self.punchline_label.pack(pady=10)
         
-        # Frame for the button
+        # Frame for the controls
         button_frame = tk.Frame(self.window, bg='#f0f8ff')
         button_frame.pack(pady=20)
         
         # Show punchline button
         self.punchline_btn = tk.Button(button_frame, text="Show Punchline", 
-                                      command=self.show_punchline,
-                                      font=("Arial", 10),
-                                      bg='#f39c12', fg='white',
-                                      state='disabled')
+                                     command=self.show_punchline,
+                                     font=("Arial", 10),
+                                     bg='#f39c12', fg='white',
+                                     state='disabled', width=12)
         self.punchline_btn.pack(side='left', padx=5)
         
         # Next joke button
         self.next_btn = tk.Button(button_frame, text="Next Joke", 
-                                 command=self.next_joke,
-                                 font=("Arial", 10),
-                                 bg='#2ecc71', fg='white',
-                                 state='disabled')
+                                command=self.next_joke,
+                                font=("Arial", 10),
+                                bg='#2ecc71', fg='white',
+                                state='disabled', width=12)
         self.next_btn.pack(side='left', padx=5)
         
         # Quit button
         quit_btn = tk.Button(button_frame, text="Quit", 
                             command=self.window.quit,
                             font=("Arial", 10),
-                            bg='#e74c3c', fg='white')
+                            bg='#e74c3c', fg='white', width=8)
         quit_btn.pack(side='left', padx=5)
-    
+
+        # --- NEW: Instructions Button ---
+        inst_btn = tk.Button(self.window, text="ℹ️ How to Use", 
+                            command=self.display_instructions,
+                            font=("Arial", 10, "bold"),
+                            bg='#95a5a6', fg='white', bd=0)
+        inst_btn.pack(pady=20)
+
+    # --- NEW: Instructions Page Logic ---
+    def display_instructions(self):
+        """Show the instructions screen"""
+        self.clear_window()
+
+        title_label = tk.Label(self.window, text="HOW TO USE", 
+                              font=("Arial", 22, "bold"), bg='#f0f8ff', fg='#2c3e50')
+        title_label.pack(pady=30)
+
+        info_frame = tk.Frame(self.window, bg='#f0f8ff')
+        info_frame.pack(pady=10, padx=40)
+
+        steps = [
+            "1. Click 'Alexa tell me a Joke'.",
+            "2. Read the setup question carefully.",
+            "3. Try to guess the answer!",
+            "4. Click 'Show Punchline' to reveal it.",
+            "5. Click 'Next Joke' to keep laughing.",
+            "6. Have fun!"
+        ]
+
+        for step in steps:
+            lbl = tk.Label(info_frame, text=step, font=("Arial", 12), 
+                         bg='#f0f8ff', fg='#34495e', justify="left", anchor="w")
+            lbl.pack(fill="x", pady=8)
+
+        # Back Button
+        back_btn = tk.Button(self.window, text="🔙 Back to Jokes", 
+                            command=self.display_home,
+                            font=("Arial", 12, "bold"),
+                            bg='#3498db', fg='white',
+                            width=15, height=2, bd=0)
+        back_btn.pack(pady=40)
+
     def tell_joke(self):
         """Tell a random joke"""
         if self.jokes:
