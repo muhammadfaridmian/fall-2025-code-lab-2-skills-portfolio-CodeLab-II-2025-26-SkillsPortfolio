@@ -6,9 +6,17 @@ class ArithmeticQuiz:
     def __init__(self):
         self.window = tk.Tk()
         self.window.title("Math Quiz Game")
-        self.window.geometry("500x400")
-        self.window.configure(bg='#f0f8ff')  # Light blue background
+        self.window.geometry("500x600") 
+        self.window.configure(bg='#f0f8ff') 
         
+        # This draws a Blue Square with a White '+' sign in memory
+        # to use as the window icon without needing an external file.
+        self.icon_img = tk.PhotoImage(width=32, height=32)
+        self.icon_img.put("#3498db", to=(0, 0, 32, 32))  # Blue background
+        self.icon_img.put("white", to=(13, 5, 19, 27))   # Vertical line
+        self.icon_img.put("white", to=(5, 13, 27, 19))   # Horizontal line
+        self.window.iconphoto(True, self.icon_img)
+       
         self.score = 0
         self.current_question = 0
         self.total_questions = 10
@@ -21,10 +29,15 @@ class ArithmeticQuiz:
         """Show difficulty level menu"""
         self.clear_window()
         
+        # Large Emoji Icon (Inside the window)
+        icon_label = tk.Label(self.window, text="🧮", font=("Arial", 80), 
+                             bg='#f0f8ff', fg='#e67e22')
+        icon_label.pack(pady=(20, 0))
+        
         # Title
         title_label = tk.Label(self.window, text="MATH QUIZ", font=("Arial", 24, "bold"), 
                               bg='#f0f8ff', fg='#2c3e50')
-        title_label.pack(pady=20)
+        title_label.pack(pady=10)
         
         subtitle_label = tk.Label(self.window, text="Select Difficulty Level", 
                                  font=("Arial", 14), bg='#f0f8ff', fg='#34495e')
@@ -53,7 +66,51 @@ class ArithmeticQuiz:
                                command=lambda: self.start_quiz("advanced"),
                                bg='#e74c3c', fg='white', **button_style)
         advanced_btn.pack(pady=8)
+
+        # Instructions Button
+        instructions_btn = tk.Button(self.window, text="ℹ️ How to Play", 
+                               command=self.display_instructions,
+                               bg='#3498db', fg='white', **button_style)
+        instructions_btn.pack(pady=20)
     
+    def display_instructions(self):
+        """Show instructions page"""
+        self.clear_window()
+
+        # Header
+        title_label = tk.Label(self.window, text="HOW TO PLAY", font=("Arial", 24, "bold"), 
+                              bg='#f0f8ff', fg='#2c3e50')
+        title_label.pack(pady=20)
+
+        # Instructions container
+        info_frame = tk.Frame(self.window, bg='#f0f8ff')
+        info_frame.pack(pady=10, padx=40)
+
+        rules = [
+            "1. Choose a difficulty level to start.",
+            f"2. You will face {self.total_questions} math questions.",
+            "3. You have 2 attempts per question.",
+            "4. Scoring Rules:",
+            "   • Correct on 1st try: +10 points",
+            "   • Correct on 2nd try: +5 points",
+            "   • Wrong twice: 0 points",
+            "5. Aim for a perfect score of 100!"
+        ]
+
+        # Render rules text
+        for rule in rules:
+            lbl = tk.Label(info_frame, text=rule, font=("Arial", 12), 
+                         bg='#f0f8ff', fg='#34495e', justify="left", anchor="w")
+            lbl.pack(fill="x", pady=5)
+
+        # Back Button
+        back_btn = tk.Button(self.window, text="🔙 Back to Menu", 
+                            command=self.display_menu,
+                            font=("Arial", 12, "bold"),
+                            bg='#95a5a6', fg='white',
+                            width=15, height=2, bd=0)
+        back_btn.pack(pady=30)
+
     def start_quiz(self, difficulty):
         """Start the quiz with selected difficulty"""
         self.difficulty = difficulty
@@ -98,7 +155,7 @@ class ArithmeticQuiz:
         header_frame.pack(pady=10)
         
         progress_label = tk.Label(header_frame, text=f"Question {self.current_question}/{self.total_questions}", 
-                                 font=("Arial", 12, "bold"), bg='#f0f8ff', fg='#7f8c8d')
+                                font=("Arial", 12, "bold"), bg='#f0f8ff', fg='#7f8c8d')
         progress_label.pack()
         
         score_label = tk.Label(header_frame, text=f"Score: {self.score}", 
